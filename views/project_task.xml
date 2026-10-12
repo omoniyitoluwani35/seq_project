@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo> 
+<record id="view_task_form_airbnb_inherit" model="ir.ui.view">
+    <field name="name">project.task.form.airbnb</field>
+    <field name="model">project.task</field>
+    <field name="inherit_id" ref="project.view_task_form2"/>
+    <field name="arch" type="xml">
+        <xpath expr="//group" position="after">
+            <group string="Airbnb Turnover" name="airbnb_turnover">
+                <field name="unit_id"/>
+                <field name="reservation_id"/>
+            </group>
+        </xpath>
+        <xpath expr="//notebook" position="inside">
+            <page string="Supplies Used" invisible="not unit_id">
+                <field name="consumption_line_ids" editable="bottom">
+                    <list editable="bottom">
+                        <field name="product_id"/>
+                        <field name="quantity"/>
+                    </list>
+                </field>
+                <button name="action_create_consumption_picking" type="object"
+                        string="Log Supplies to Inventory"
+                        invisible="not consumption_line_ids or picking_id"
+                        class="btn-secondary"/>
+                <field name="picking_id" readonly="1"/>
+            </page>
+        </xpath>
+    </field>
+</record>
+</odoo>

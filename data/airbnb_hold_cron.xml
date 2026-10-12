@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- A hold that is never paid for would otherwise sit on the
+         calendar for ever. This lapses it quietly and leaves the reason
+         in the chatter. Set airbnb.hold_hours to 0 to disable expiry
+         entirely - holds then live until someone cancels them. -->
+    <record id="cron_airbnb_lapse_holds" model="ir.cron">
+        <field name="name">Airbnb: Lapse expired holds</field>
+        <field name="model_id" ref="model_airbnb_reservation"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_lapse_holds()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="airbnb_hold_hours" model="ir.config_parameter">
+        <field name="key">airbnb.hold_hours</field>
+        <field name="value">48</field>
+    </record>
+
+</odoo>

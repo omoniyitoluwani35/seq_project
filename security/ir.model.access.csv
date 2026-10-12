@@ -1,0 +1,29 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_reservation_readonly,airbnb.reservation read only,model_airbnb_reservation,AirBNB.group_airbnb_readonly,1,0,0,0
+access_unit_readonly,airbnb.unit read only,model_airbnb_unit,AirBNB.group_airbnb_readonly,1,0,0,0
+access_property_readonly,airbnb.property read only,model_airbnb_property,AirBNB.group_airbnb_readonly,1,0,0,0
+access_ical_block_readonly,airbnb.ical.block read only,model_airbnb_ical_block,AirBNB.group_airbnb_readonly,1,0,0,0
+access_turnover_line_readonly,airbnb.turnover.line read only,model_airbnb_turnover_line,AirBNB.group_airbnb_readonly,1,0,0,0
+access_sync_monitor_readonly,airbnb.sync.monitor read only,model_airbnb_sync_monitor,AirBNB.group_airbnb_readonly,1,0,0,0
+access_reservation_housekeeping,airbnb.reservation housekeeping,model_airbnb_reservation,AirBNB.group_airbnb_housekeeping,1,0,0,0
+access_unit_housekeeping,airbnb.unit housekeeping,model_airbnb_unit,AirBNB.group_airbnb_housekeeping,1,1,0,0
+access_property_housekeeping,airbnb.property housekeeping,model_airbnb_property,AirBNB.group_airbnb_housekeeping,1,0,0,0
+access_ical_block_housekeeping,airbnb.ical.block housekeeping,model_airbnb_ical_block,AirBNB.group_airbnb_housekeeping,1,0,0,0
+access_turnover_line_housekeeping,airbnb.turnover.line housekeeping,model_airbnb_turnover_line,AirBNB.group_airbnb_housekeeping,1,1,1,1
+access_sync_monitor_housekeeping,airbnb.sync.monitor housekeeping,model_airbnb_sync_monitor,AirBNB.group_airbnb_housekeeping,1,0,0,0
+access_maintenance_wizard_housekeeping,airbnb.maintenance.wizard housekeeping,model_airbnb_maintenance_wizard,AirBNB.group_airbnb_housekeeping,1,1,1,0
+access_maintenance_end_wizard_housekeeping,airbnb.maintenance.end.wizard housekeeping,model_airbnb_maintenance_end_wizard,AirBNB.group_airbnb_housekeeping,1,1,1,0
+access_reservation_desk,airbnb.reservation desk,model_airbnb_reservation,AirBNB.group_airbnb_desk,1,1,1,0
+access_unit_desk,airbnb.unit desk,model_airbnb_unit,AirBNB.group_airbnb_desk,1,0,0,0
+access_property_desk,airbnb.property desk,model_airbnb_property,AirBNB.group_airbnb_desk,1,0,0,0
+access_ical_block_desk,airbnb.ical.block desk,model_airbnb_ical_block,AirBNB.group_airbnb_desk,1,0,0,0
+access_turnover_line_desk,airbnb.turnover.line desk,model_airbnb_turnover_line,AirBNB.group_airbnb_desk,1,0,0,0
+access_sync_monitor_desk,airbnb.sync.monitor desk,model_airbnb_sync_monitor,AirBNB.group_airbnb_desk,1,0,0,0
+access_reservation_manager,airbnb.reservation manager,model_airbnb_reservation,AirBNB.group_airbnb_manager,1,1,1,1
+access_unit_manager,airbnb.unit manager,model_airbnb_unit,AirBNB.group_airbnb_manager,1,1,1,1
+access_property_manager,airbnb.property manager,model_airbnb_property,AirBNB.group_airbnb_manager,1,1,1,1
+access_ical_block_manager,airbnb.ical.block manager,model_airbnb_ical_block,AirBNB.group_airbnb_manager,1,1,1,1
+access_turnover_line_manager,airbnb.turnover.line manager,model_airbnb_turnover_line,AirBNB.group_airbnb_manager,1,1,1,1
+access_sync_monitor_manager,airbnb.sync.monitor manager,model_airbnb_sync_monitor,AirBNB.group_airbnb_manager,1,1,1,1
+access_maintenance_wizard_manager,airbnb.maintenance.wizard manager,model_airbnb_maintenance_wizard,AirBNB.group_airbnb_manager,1,1,1,1
+access_maintenance_end_wizard_manager,airbnb.maintenance.end.wizard manager,model_airbnb_maintenance_end_wizard,AirBNB.group_airbnb_manager,1,1,1,1

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Four roles, because four different people touch a booking and
+        three of them have no business posting to the ledger.
+
+        The chain matters more than the names. Manager implies Front
+        Desk and Housekeeping, so one assignment covers a supervisor
+        who also works the desk. Nothing implies Manager, so the right
+        to cancel a paid booking - which credit-notes a posted invoice
+        and sends real money back out of the bank - has to be granted
+        deliberately.
+
+        The accounting groups are implied rather than left to chance:
+        a desk user who cannot create an invoice cannot confirm a
+        booking, and would hit an access error halfway through
+        action_reserve with the reservation already written.
+    -->
+
+    <record id="airbnb_privilege" model="res.groups.privilege">
+        <field name="name">Short Stay</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <record id="group_airbnb_readonly" model="res.groups">
+        <field name="name">Read Only</field>
+        <field name="privilege_id" ref="airbnb_privilege"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user')),
+                                         (4, ref('account.group_account_readonly'))]"/>
+        <field name="comment">Sees every booking, unit and property, and the
+            accounting behind them. Changes nothing. For an owner or an
+            investor who wants to look without being able to touch.</field>
+    </record>
+
+    <record id="group_airbnb_housekeeping" model="res.groups">
+        <field name="name">Housekeeping</field>
+        <field name="privilege_id" ref="airbnb_privilege"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Reads the booking calendar to know which units
+            turn over when, records supplies consumed on a turnover, and puts
+            a unit under maintenance or back into service. Cannot create or
+            price a booking.</field>
+    </record>
+
+    <record id="group_airbnb_desk" model="res.groups">
+        <field name="name">Front Desk</field>
+        <field name="privilege_id" ref="airbnb_privilege"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user')),
+                                         (4, ref('account.group_account_invoice'))]"/>
+        <field name="comment">Takes bookings, moves a hold to reserved, and
+            collects payment. Cannot delete a booking, cancel a paid one, or
+            change what a unit costs.</field>
+    </record>
+
+    <record id="group_airbnb_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="airbnb_privilege"/>
+        <field name="implied_ids" eval="[(4, ref('AirBNB.group_airbnb_desk')),
+                                         (4, ref('AirBNB.group_airbnb_housekeeping'))]"/>
+        <field name="comment">Everything the desk and housekeeping can do,
+            plus cancelling a paid booking, deleting records, configuring
+            units, properties and iCal feeds, and the sync monitor.</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_airbnb_reservation_gantt" model="ir.ui.view">
+        <field name="name">airbnb.reservation.gantt</field>
+        <field name="model">airbnb.reservation</field>
+        <field name="arch" type="xml">
+            <gantt date_start="checkin_date"
+               date_stop="checkout_date"
+               default_group_by="unit_id"
+                color="color_index"
+                precision="{'day': 'day:1'}"
+                string="Reservations">
+                <field name="unit_id"/>
+                <field name="guest_partner_id"/>
+                <field name="state"/>
+                <templates>
+                    <div t-name="gantt-popover">
+                        <ul class="o_gantt_popover_body">
+                            <li><strong>Guest:</strong> <t t-esc="guest_partner_id"/></li>
+                            <li><strong>Status:</strong> <t t-esc="state"/></li>
+                        </ul>
+                    </div>
+                </templates>
+            </gantt>
+        </field>
+    </record>
+</odoo>

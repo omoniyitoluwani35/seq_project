@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="cron_airbnb_ical_import" model="ir.cron">
+        <field name="name">Airbnb: Import unit calendars</field>
+        <field name="model_id" ref="model_airbnb_unit"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_import_ical()</field>
+        <field name="interval_number">30</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- <record id="cron_airbnb_complete_stays" model="ir.cron">
+        <field name="name">Airbnb: Complete past stays</field>
+        <field name="model_id" ref="model_airbnb_reservation"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_complete_past_stays()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record> -->
+
+    <record id="cron_airbnb_health_check" model="ir.cron">
+        <field name="name">Airbnb: Sync health check</field>
+        <field name="model_id" ref="model_airbnb_sync_monitor"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_health_check()</field>
+        <field name="interval_number">6</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Property -->
+    <record id="view_airbnb_property_list" model="ir.ui.view">
+        <field name="name">airbnb.property.list</field>
+        <field name="model">airbnb.property</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="city"/>
+                <field name="unit_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_airbnb_property_form" model="ir.ui.view">
+        <field name="name">airbnb.property.form</field>
+        <field name="model">airbnb.property</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="street"/>
+                        <field name="city"/>
+                        <field name="analytic_account_id"/>
+                        <field name="income_account_id"/>
+                        <field name="product_id" readonly="1"/>
+                        <field name="location_id" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Units">
+                            <field name="unit_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="airbnb_listing_name"/>
+                                    <field name="bedrooms"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Unit -->
+    <record id="view_airbnb_unit_list" model="ir.ui.view">
+        <field name="name">airbnb.unit.list</field>
+        <field name="model">airbnb.unit</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="setup_state" widget="badge"
+                       decoration-success="setup_state == 'ready'"
+                       decoration-warning="setup_state == 'incomplete'"/>
+                <field name="property_id"/>
+                <field name="name"/>
+                <field name="airbnb_listing_name"/>
+                <field name="nightly_rate" optional="show"/>
+                <field name="bedrooms"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'available'"
+                       decoration-warning="state == 'maintenance'"
+                       decoration-danger="state == 'inactive'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_airbnb_unit_form" model="ir.ui.view">
+        <field name="name">airbnb.unit.form</field>
+        <field name="model">airbnb.unit</field>
+        <field name="arch" type="xml">
+            <form>                        
+                <header>
+                    <button name="action_set_maintenance" type="object"
+                            string="Mark Under Maintenance"
+                            invisible="state == 'maintenance'"/>
+                    <button name="action_set_available" type="object"
+                            string="Mark Available" class="oe_highlight"
+                            invisible="state == 'available'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="available,maintenance"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="setup_state != 'incomplete'">
+                        <strong>This unit is not fully set up.</strong>
+                        <field name="setup_issues" readonly="1" nolabel="1"/>
+                    </div>
+                    <field name="setup_state" invisible="1"/>
+                    <group>
+                        <field name="property_id"/>
+                        <field name="name"/>
+                        <field name="bedrooms"/>
+                        <field name="airbnb_listing_name"/>
+                        <field name="airbnb_listing_id"/>
+                        <field name="analytic_account_id"/>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="nightly_rate"/>
+                        <field name="location_id" readonly="1"/>
+                    </group>
+                    <group string="Calendar Sync">
+                        <field name="ical_registered_with_airbnb"/>
+                        <field name="ical_feed_url" widget="CopyClipboardChar"/>
+                        <field name="airbnb_ical_import_url"/>
+                        <field name="last_ical_import" readonly="1"/>
+                        <field name="ical_import_error" readonly="1" invisible="not ical_import_error"/>
+                    </group>
+                </sheet>
+            <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Reservation -->
+    <record id="view_airbnb_reservation_list" model="ir.ui.view">
+        <field name="name">airbnb.reservation.list</field>
+        <field name="model">airbnb.reservation</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="state == 'cancelled'" decoration-success="state == 'confirmed'">
+                <field name="unit_id"/>
+                <field name="guest_partner_id"/>
+                <field name="checkin_date"/>
+                <field name="checkout_date"/>
+                <field name="source"/>
+                <field name="state"
+                    widget="badge"
+                    decoration-danger="state == 'cancelled'"
+                    decoration-warning="state == 'pending'"
+                    decoration-success="state == 'confirmed'"
+                    decoration-info="state == 'done'"/>
+                <field name="nights" readonly="1"/>
+                <field name="gross_amount"/>
+                <field name="payout_amount" optional="hide"/>
+                <field name="payout_state" optional="hide"/>
+                <field name="parse_confidence" widget="badge"
+                    decoration-warning="parse_confidence == 'low'"
+                    decoration-danger="parse_confidence == 'failed'"
+                    optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_airbnb_reservation_form" model="ir.ui.view">
+        <field name="name">airbnb.reservation.form</field>
+        <field name="model">airbnb.reservation</field>
+        <field name="arch" type="xml">
+            <form>
+                <div class="alert alert-warning" role="alert"
+                    invisible="parse_confidence != 'low'">
+                    <strong>This reservation was parsed from an email but some fields could not be read.</strong>
+                    <field name="parse_notes" readonly="1" nolabel="1"/>
+                </div>
+                <div class="alert alert-warning" role="alert"
+                    invisible="state != 'done' or invoice_payment_state in ('paid', 'in_payment') or not invoice_id">
+                    <strong>This stay has completed but the invoice is not settled.</strong>
+                </div>
+                <header>
+                    <button name="action_register_payment"
+                        string="Register Payment"
+                        type="object"
+                        class="btn-primary"
+                        invisible="not invoice_id or amount_residual &lt;= 0"/>
+                    <button name="action_hold"
+                            string="Hold"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state in ('hold', 'reserved', 'done')"
+                            help="Write the booking down without taking the unit
+                                off the market."/>
+                    <button name="action_reserve"
+                            string="Reserve &amp; Invoice"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state in ('reserved', 'done', 'cancelled')"
+                            help="Raise the invoice and block these nights."/>
+                    <button name="action_cancel"
+                            string="Cancel"
+                            type="object"
+                            invisible="state in ('cancelled', 'done')"/>
+                    <field name="state"
+                        widget="statusbar"
+                        statusbar_visible="hold,reserved,done"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-warning" role="alert"
+                        invisible="competing_hold_count == 0 or state not in ('inquiry', 'hold')">
+                        <field name="competing_hold_count" class="oe_inline"/>
+                        other guest(s) are holding these same nights. Whoever
+                        pays first takes the unit.
+                    </div>
+
+                    <div class="alert alert-info" role="alert"
+                        invisible="state != 'hold' or not hold_expiry">
+                        This hold lapses on <field name="hold_expiry" class="oe_inline"/>
+                        unless it is paid for.
+                    </div>    
+                    <group>
+                        <group>
+                            <field name="unit_id"/>
+                            <field name="guest_partner_id"/>
+                            <field name="source"/>
+                            <field name="booking_type" invisible="source != 'airbnb'"/>
+                            <field name="airbnb_confirmation_code" invisible="source != 'airbnb'"/>
+                            <field name="checkin_date" readonly="source == 'airbnb'"/>
+                            <field name="checkout_date" readonly="source == 'airbnb'"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="discount_type"/>
+                            <field name="discount" invisible="discount_type != 'fixed' "/>
+                            <field name="discount_percent" invisible="discount_type != 'percent'"/>
+                            <field name="room_value"/>
+                            <field name="gross_amount"/>
+                            <field name="payout_amount"/>
+                            <!-- <field name="payout_state"/> -->
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="System">
+                            <group>
+                                <field name="sale_order_id" readonly="1"/>
+                                <field name="ical_uid" readonly="1"/>
+                            </group>
+
+                        </page>
+                        <page string="Payment">
+                            <group invisible="not invoice_id">
+                                <group>
+                                    <field name="invoice_id" readonly="1"/>
+                                    <field name="invoice_payment_state" readonly="1"/>
+                                    <field name="amount_residual" readonly="1"/>
+                                    <field name="payment_link" widget="CopyClipboardChar"
+                                        readonly="1" invisible="not payment_link"/>
+                                </group>
+                                <group >
+                                    <field name="deferral_move_id"/>
+                                    <field name="revenue_move_id"/>
+                                    <field name="revenue_recognised"/>
+                                </group>
+                                <!-- <group>
+                                    <field name="payment_qr" widget="image"
+                                        options="{'size': [200, 200]}"
+                                        nolabel="1" invisible="not payment_qr"/>
+                                </group> -->
+                            </group>
+                            <group string="Refund" invisible="not credit_note_id">
+                                <field name="credit_note_id"/>
+                                <field name="refund_payment_id"/>
+                                <field name="refund_move_id"/>
+                            </group>   
+                        </page>
+                    </notebook>
+                    <!-- <field name="notes"/> -->
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_airbnb_reservation_search" model="ir.ui.view">
+        <field name="name">airbnb.reservation.search</field>
+        <field name="model">airbnb.reservation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="unit_id"/>
+                <field name="guest_partner_id"/>
+                <field name="airbnb_confirmation_code"/>
+                <filter name="blocking"
+                    string="Blocking the Calendar"
+                    domain="[('state', 'in', ['reserved', 'done'])]"/>
+                <filter name="holds"
+                        string="On Hold"
+                        domain="[('state', '=', 'hold')]"/>
+                
+                <separator/>
+                <filter name="lapsing"
+                        string="Lapsing Today"
+                        domain="[('state', '=', 'hold'),
+                                ('hold_expiry', '&lt;', (context_today() + relativedelta(days=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
+                    <filter name="confirmed" string="Confirmed"
+                            domain="[('state', '=', 'confirmed')]"/>
+                    <filter name="unpaid_completed" string="Completed, Unpaid"
+                            domain="[('state', '=', 'done'),
+                                    ('invoice_payment_state', 'not in', ('paid', 'in_payment'))]"/>
+                <separator/>
+                <filter name="airbnb" string="Airbnb"
+                        domain="[('source', '=', 'airbnb')]"/>
+                <filter name="direct" string="Direct"
+                        domain="[('source', '=', 'direct')]"/>
+                <group>
+                    <filter name="group_unit" string="Unit"
+                            context="{'group_by': 'unit_id'}"/>
+                    <filter name="group_state" string="Status"
+                            context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+        <!-- Imported Airbnb calendar blocks -->
+    <!-- <record id="view_airbnb_ical_block_list" model="ir.ui.view">
+        <field name="name">airbnb.ical.block.list</field>
+        <field name="model">airbnb.ical.block</field>
+        <field name="arch" type="xml">
+            <list decoration-warning="is_unmatched">
+                <field name="unit_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="summary"/>
+                <field name="matched_reservation_id"/>
+                <field name="is_unmatched"/>
+                <field name="uid" optional="hide"/>
+            </list>
+        </field>
+    </record> -->
+
+    <record id="action_airbnb_ical_block" model="ir.actions.act_window">
+        <field name="name">Airbnb Calendar Blocks</field>
+        <field name="res_model">airbnb.ical.block</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'search_default_unmatched': 1}</field>
+    </record>
+
+    <record id="view_airbnb_ical_block_search" model="ir.ui.view">
+        <field name="name">airbnb.ical.block.search</field>
+        <field name="model">airbnb.ical.block</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="unit_id"/>
+                <filter name="unmatched" string="Needs Review"
+                        domain="[('is_unmatched','=',True)]"/>
+                <group>
+                    <filter name="group_unit" string="Unit" context="{'group_by':'unit_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_airbnb_ical_block" model="ir.actions.act_window">
+        <field name="name">Airbnb Calendar Blocks</field>
+        <field name="res_model">airbnb.ical.block</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'search_default_unmatched': 1}</field>
+    </record>
+
+    <record id="action_airbnb_property" model="ir.actions.act_window">
+        <field name="name">Properties</field>
+        <field name="res_model">airbnb.property</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_airbnb_unit" model="ir.actions.act_window">
+        <field name="name">Units</field>
+        <field name="res_model">airbnb.unit</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_airbnb_reservation" model="ir.actions.act_window">
+        <field name="name">Reservations</field>
+        <field name="res_model">airbnb.reservation</field>
+        <field name="view_mode">gantt,list,form</field>
+    </record>
+wrmk tevx xlwy ihzz
+
+
+    <menuitem id="menu_airbnb_root" 
+                name="Reservation Booking" 
+                sequence="60" 
+                web_icon="AirBNB,static/description/reservation.png"/>
+    <menuitem id="menu_airbnb_reservations" name="Reservations"
+              parent="menu_airbnb_root" action="action_airbnb_reservation" sequence="10"/>
+    <menuitem id="menu_airbnb_units" name="Units"
+              parent="menu_airbnb_root" action="action_airbnb_unit" sequence="20"/>
+    <menuitem id="menu_airbnb_properties" name="Properties"
+              parent="menu_airbnb_root" action="action_airbnb_property" sequence="30"/>
+    <!-- <menuitem id="menu_airbnb_ical_blocks" name="Airbnb Calendar Blocks"
+              parent="menu_airbnb_root" action="action_airbnb_ical_block" sequence="25"/> -->
+</odoo>
