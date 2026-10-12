@@ -167,12 +167,14 @@ class AirbnbReservation(models.Model):
     room_value = fields.Monetary(
         store=True, 
         compute="_onchange_default_price",
+        readonly=False,
         string="Room Rate",
         help="Value for the room"
     )
     gross_amount = fields.Monetary(
         store=True, 
         compute="_onchange_default_price",
+        readonly=False,
         string="Amt Total",
         help="What the guest was charged, taken from the booking "
         "confirmation email. This is what the sale order is built from.",
@@ -274,7 +276,7 @@ class AirbnbReservation(models.Model):
             else:
                 rec.nights = 0
 
-    @api.depends("unit_id", "checkin_date", "checkout_date", "discount", "room_value", "discount_type", "discount_percent")
+    @api.depends("unit_id", "checkin_date", "checkout_date", "discount",  "discount_type", "discount_percent")
     def _onchange_default_price(self):
         """Fill the amount from the unit's rate when the user has not
         set one. Only fires on manual entry - parsed Airbnb bookings
@@ -532,14 +534,26 @@ class AirbnbReservation(models.Model):
 
 
     def _create_sale_order(self):
-        """Build a sale order from gross_amount (booking value) -
-        never from payout_amount. See class docstring on #8."""
+        """Build a sale order from the booking value - never from
+        payout_amount. See class docstring on #8.
+
+        The room line carries the UNDISCOUNTED rate and the discount is
+        its own negative line, so the invoice shows the guest what they
+        were charged and what they were given. Airbnb bookings have no
+        discount line: their figure arrives already net.
+        """
         self.ensure_one()
         if not self.guest_partner_id:
             raise UserError(
                 _("A guest must be set on the reservation before it can be confirmed.")
             )
         product = self.unit_id.property_id.get_or_create_product()
+
+        # Direct: price the room gross, then discount it on its own line.
+        # Airbnb: gross_amount is the whole story and room_value is 0.
+        base = (self.gross_amount if self.source == "airbnb"
+                else (self.room_value or self.gross_amount))
+
         order = self.env["sale.order"].sudo().create(
             {
                 "partner_id": self.guest_partner_id.id,
@@ -551,17 +565,31 @@ class AirbnbReservation(models.Model):
                         {
                             "product_id": product.id,
                             "product_uom_qty": 1,
-                            "price_unit": self.gross_amount,
-                            # "analytic_distribution": (
-                            #     {str(self.unit_id.analytic_account_id.id): 100}
-                            #     if self.unit_id.analytic_account_id
-                            #     else {}
-                            # ),
+                            "price_unit": base,
                         },
                     )
                 ],
             }
         )
+
+        cut = self.room_value - self.gross_amount
+        if self.source != "airbnb" and cut > 0:
+            disc = self.env["product.product"].search(
+                [("default_code", "=", "DISCOUNT")], limit=1)
+            if not disc:
+                raise UserError(_(
+                    "No product with internal reference DISCOUNT exists. "
+                    "Create it before applying a discount."))
+            label = (_("Guest discount (%s%%)") % self.discount_percent
+                     if self.discount_type == "percent" else _("Guest discount"))
+            order.order_line = [(0, 0, {
+                "product_id": disc.id,
+                "name": label,
+                "product_uom_qty": 1,
+                "price_unit": -cut,
+                "tax_ids": [(5, 0, 0)],
+            })]
+
         order.action_confirm()
         self.sale_order_id = order
         return order
@@ -572,6 +600,13 @@ class AirbnbReservation(models.Model):
                     and not vals.get("hold_expiry"):
                 vals["hold_expiry"] = self._default_hold_expiry()
         return super().create(vals_list)
+
+    def _airbnb_sale_journal(self):
+        """The property's own journal, or nothing - in which case Odoo's
+        default applies and numbering is shared, which is the old
+        behaviour and not an error."""
+        self.ensure_one()
+        return self.unit_id.property_id.sale_journal_id
 
     @api.model
     def _cron_lapse_holds(self):

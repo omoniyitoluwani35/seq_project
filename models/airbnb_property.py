@@ -22,6 +22,17 @@ class AirbnbProperty(models.Model):
 
     unit_ids = fields.One2many("airbnb.unit", "property_id", string="Units")
     unit_count = fields.Integer(compute="_compute_unit_count")
+    sale_journal_id = fields.Many2one(
+        "account.journal", string="Sales Journal",
+        domain="[('type', '=', 'sale')]",
+        help="Invoices for this property are posted here, so the property "
+             "gets its own number series. Left empty, Odoo's default sales "
+             "journal is used.")
+    bank_journal_id = fields.Many2one(
+        "account.journal", string="Bank Journal",
+        domain="[('type', 'in', ('bank', 'cash'))]",
+        help="Pre-selected when registering a guest payment against an "
+             "invoice for this property.")
 
     # Parent analytic account for building-level roll-up reporting.
     # Each unit gets its own child analytic account so per-unit P&L is

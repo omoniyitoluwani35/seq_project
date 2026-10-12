@@ -89,6 +89,16 @@ class AirbnbReservation(models.Model):
             #     "deferred_start_date": rec.checkin_date,
             #     "deferred_end_date": rec.checkout_date,
             # })
+            invoice = rec.sale_order_id.sudo()._create_invoices().sudo(False)
+            if not invoice:
+                continue
+            journal = rec._airbnb_sale_journal()
+            if journal and invoice.journal_id != journal:
+                invoice.journal_id = journal
+            if rec.currency_id and invoice.currency_id != rec.currency_id:
+                invoice.currency_id = rec.currency_id
+            invoice.invoice_date = rec.checkin_date or fields.Date.today()
+            invoice.action_post()
             invoice.action_post()
             rec.invoice_id = invoice
             rec._airbnb_defer_revenue(invoice)
@@ -167,3 +177,17 @@ class AirbnbReservation(models.Model):
                         "Automatic invoicing failed: %s. Raise the invoice "
                         "by hand.") % e)
         return res
+
+class AccountMove(models.Model):
+    _inherit = "account.move"
+
+    def action_register_payment(self):
+        action = super().action_register_payment()
+        if len(self) == 1 and isinstance(action.get("context"), dict):
+            resa = self.env["airbnb.reservation"].search(
+                [("invoice_id", "=", self.id)], limit=1)
+            journal = resa.unit_id.property_id.bank_journal_id
+            if journal:
+                action["context"] = dict(action["context"],
+                                         default_journal_id=journal.id)
+        return action

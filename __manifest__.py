@@ -27,6 +27,7 @@ follow-on pieces that plug into this data model.
         "security/airbnb_security_policy.xml",
         "security/ir.model.access.csv",
         "data/ical_cron.xml",
+        "data/product_data.xml",
         "wizard/airbnb_maintanance_wizard.xml",
         "views/airbnb_views.xml",
         "views/gantt_view.xml",
