@@ -9,7 +9,7 @@ then flip DRY_RUN = False and run again.  Re-runnable: it only ever touches
 lines that have no analytic distribution yet, so a second run is a no-op.
 """
 
-DRY_RUN = True
+DRY_RUN = False
 
 PLAN_NAME = "Project"
 
