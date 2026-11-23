@@ -17,16 +17,42 @@ Run each from the VPS:
 
 ## setup_analytic.py
 
-Tagging rules, in order: account-code override for the four inter-project
-loan accounts (7375/7377 → Arusha, 9550 → Jacobs Bay, 9551 → Ali Baba),
-then project name found in the account name, then the property-specific
-bank journals (MPARU, MPALI, SUMAB, MPRAY).
+Rules follow the accountant's own presentation in the September accounts,
+so that Odoo's analytic reports reproduce his per-project P&L.
+
+Applied in order:
+
+1. **No analytic** — 4370 and 4390. He reports these in Note 13,
+   "Depreciation of property, plant and equipment" (10,459,567.00),
+   *below* the three project blocks. They carry no project.
+2. **Account-code override** — the four inter-project loans, tagged to
+   whoever holds the balance (7375/7377 → Arusha, 9550 → Jacobs Bay,
+   9551 → Ali Baba); plus 4225, 4240 and 4263, which he reports inside
+   Note 6, "Operating expenses - Arusha".
+3. **Project name in the account name** — the bulk of the chart.
+4. **Property-specific bank journal** — MPARU, MPALI, SUMAB, MPRAY.
+5. **Note 6 fallback** — 4475 Bank Charges raised on the four
+   company-level banks, which have no property. Note 6 puts them in Arusha.
 
 Scope is P&L accounts plus the twelve project balance-sheet accounts.
 Banks, equity, tax and general control accounts are deliberately excluded:
 the expense side of a payment carries the analytic, the bank side does not.
 
-Expect ~99.7% of in-scope value to tag automatically. The ~51 lines that
-don't are shared costs — depreciation, bank charges on non-property
-journals, legal fees, stationery — and need an allocation decision before
-the second run.
+Nothing should come out unallocated. If anything does, add a rule before
+the live run rather than leaving it untagged.
+
+## One known divergence from the printed accounts
+
+Note 6 also contains `Rent & Rate - Ali Baba Air Bnb` (20,416,666.66),
+so the printed P&L charges Ali Baba's rent against Arusha's gross profit.
+Account 4350 names Ali Baba, so rule 3 tags it to Ali Baba and Odoo will
+report:
+
+| Project | Printed accounts | Odoo analytic | Shift |
+|---|---|---|---|
+| Arusha | 64,510,607.26 | 84,927,273.92 | +20,416,666.66 |
+| Ali Baba | -130,869,175.42 | -151,285,842.08 | -20,416,666.66 |
+
+Company totals are identical either way (-104,358,568.16, net
+-114,818,135.15). Only the split between the two moves. Raise it with the
+accountant before anyone compares the two reports.
