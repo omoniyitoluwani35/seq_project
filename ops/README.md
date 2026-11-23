@@ -70,3 +70,56 @@ report:
 Company totals are identical either way (-104,358,568.16, net
 -114,818,135.15). Only the split between the two moves. Raise it with the
 accountant before anyone compares the two reports.
+
+---
+
+# modules/seq_project_analytic
+
+Odoo module: search, group and sort journal items by project.
+
+`analytic_distribution` is a JSON field, so Odoo can search it but cannot
+group or sort by it. This adds `account.move.line.project_analytic_id` —
+a stored, indexed Many2one computed from the distribution — which then
+behaves like any other field in the search panel.
+
+What you get:
+
+- **Journal Items** — Project as a searchable field, a Group By Project
+  option, a "No Project" filter, and Project as a column on the list
+- **Journal Entries** — a Project search that matches through the lines
+- Group By Project applied as the default on the Journal Items action
+
+## Installing
+
+The addons path is `/opt/odoo19E/custom_modules`, and this repo's root is
+itself the AirBNB module, so a module nested here is not a sibling and Odoo
+will not find it. Symlink it in once:
+
+    ln -s /opt/odoo19E/custom_modules/AirBNB/ops/modules/seq_project_analytic \
+          /opt/odoo19E/custom_modules/seq_project_analytic
+
+Then install it, and it stays current with every `git pull`:
+
+    sudo systemctl stop odoo
+    sudo -u odoo /opt/odoo19E/.venv/bin/python3 /opt/odoo19E/odoo/odoo-bin \
+        -c /etc/odoo19E.conf -d seq_main -i seq_project_analytic \
+        --stop-after-init --no-http --logfile=
+    sudo systemctl start odoo
+
+Run `setup_analytic.py` first. The stored field computes on install, so
+installing before the lines are tagged leaves it empty until the next
+upgrade recomputes it.
+
+## Two things to know
+
+The Many2one holds **one** analytic account. Every distribution written by
+`setup_analytic.py` is 100% to a single project, so it is exact today. If
+anyone later splits a line 60/40 the field shows the larger share only —
+fine as a filter, wrong as an amount. For split amounts use Analytic Items
+(`account.analytic.line`), which is the real table behind the distribution
+and carries one row per project per line.
+
+The default Group By changes the Journal Items view for **everyone**,
+including whoever is reconciling. The uninstall hook removes it again, or
+delete `post_init_hook` from the manifest and upgrade to keep the filter
+without the default.

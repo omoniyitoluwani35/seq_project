@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Journal Items: searchable Project field + a Group By option. -->
+    <record id="view_account_move_line_filter_project" model="ir.ui.view">
+        <field name="name">account.move.line.search.project</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_account_move_line_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="project_analytic_id"/>
+                <separator/>
+                <filter name="no_project"
+                        string="No Project"
+                        domain="[('project_analytic_id', '=', False)]"/>
+                <group string="Project">
+                    <filter name="group_project"
+                            string="Project"
+                            context="{'group_by': 'project_analytic_id'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Journal Items list: Project as an optional column, on by default. -->
+    <record id="view_move_line_tree_project" model="ir.ui.view">
+        <field name="name">account.move.line.list.project</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='account_id']" position="after">
+                <field name="project_analytic_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
