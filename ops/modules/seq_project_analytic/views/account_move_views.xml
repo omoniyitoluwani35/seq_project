@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Journal Entries: find entries that touch a project, matched through
+         their lines.
+
+         A search field only. An entry often spans several projects - a bank
+         charge accrual hits four at once - so there is no correct Project
+         column or Group By here: the entry would have to appear under
+         several groups or pick one arbitrarily. Group by project on Journal
+         Items instead, where the project actually lives.
+
+         Anchored on (//search/field)[last()] rather than a named field,
+         because a search view's schema requires every <field> to precede
+         the filters and this lands after the last one whatever it is. -->
+    <record id="view_account_move_filter_project" model="ir.ui.view">
+        <field name="name">account.move.search.project</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_move_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="(//search/field)[last()]" position="after">
+                <field name="line_ids"
+                       string="Project"
+                       filter_domain="[('line_ids.project_analytic_id', 'ilike', self)]"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -94,9 +94,13 @@ What you get:
   option, a "No Project" filter, and Project as a column on the list
 - Group By Project applied as the default on the Journal Items action
 
-Journal Entries are deliberately untouched. One entry can touch several
-projects, so the project belongs to the line, not the entry — filter on
-Journal Items instead.
+- **Journal Entries** — a Project search, matched through the entry's lines
+
+Journal Entries get a search field only. One entry often spans several
+projects — a bank charge accrual hits four at once — so there is no correct
+Project column or Group By there: the entry would have to appear under
+several groups or pick one arbitrarily. Group by project on Journal Items,
+where the project actually lives.
 
 ## Editing the search view
 

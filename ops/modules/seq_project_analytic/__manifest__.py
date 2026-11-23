@@ -1,6 +1,6 @@
 {
     "name": "Sequoia Project Analytic Filter",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.0.2",
     "summary": "Search, group and sort journal items by project analytic account",
     "description": """
 Sequoia Project Analytic Filter
@@ -19,9 +19,10 @@ Adds:
 - Project as a column on the Journal Items list
 - A default Group By Project on the Journal Items action, applied on install
   and removed again on uninstall
+- A Project search on Journal Entries, matched through the entry's lines
 
-Journal Entries are deliberately left alone. A single entry can touch
-several projects, so the project belongs to the line, not to the entry.
+Journal Entries get a search field only, no column and no Group By. One
+entry often spans several projects, so the project belongs to the line.
 """,
     "author": "NIVIC Tech",
     "license": "LGPL-3",
@@ -29,6 +30,7 @@ several projects, so the project belongs to the line, not to the entry.
     "depends": ["account", "analytic"],
     "data": [
         "views/account_move_line_views.xml",
+        "views/account_move_views.xml",
     ],
     "post_init_hook": "post_init_default_groupby",
     "uninstall_hook": "uninstall_clear_default_groupby",
