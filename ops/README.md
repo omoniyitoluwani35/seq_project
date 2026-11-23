@@ -92,8 +92,28 @@ What you get:
 
 - **Journal Items** — Project as a searchable field, a Group By Project
   option, a "No Project" filter, and Project as a column on the list
-- **Journal Entries** — a Project search that matches through the lines
 - Group By Project applied as the default on the Journal Items action
+
+Journal Entries are deliberately untouched. One entry can touch several
+projects, so the project belongs to the line, not the entry — filter on
+Journal Items instead.
+
+## Editing the search view
+
+A search view's RELAX NG schema enforces element **order**: every `<field>`
+must precede the filters, separators, `<group>` and `<searchpanel>`. So
+anchor each new node after a real sibling of its own kind
+(`//field[@name='account_id']`, `//filter[@name='pl_accounts']`) rather than
+using `position="inside"` on `//search`, which appends at the end and fails
+with `RELAXNG_ERR_EXTRACONTENT: Element search has extra content: field`.
+
+`<group>` in a search view takes **no** `string` attribute — the stock view
+uses a bare `<group>`. Add group-by filters inside that existing group;
+a new `<group string="...">` fails with `RELAXNG_ERR_INVALIDATTR`.
+
+Neither error reaches the UI. Odoo reports only `Invalid view ... definition`
+with `-no context-`; the real reason needs
+`--log-handler odoo.tools.convert:DEBUG`.
 
 ## Installing
 

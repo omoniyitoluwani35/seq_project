@@ -1,28 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Journal Items: searchable Project field + a Group By option. -->
+    <!-- Journal Items: searchable Project field, a No Project filter, and
+         Project in the existing Group By group.
+
+         A search view's RELAX NG schema enforces element order - every
+         <field> must precede the filters, separators, <group> and
+         <searchpanel>. So each node is anchored after a real sibling of its
+         own kind rather than appended with position="inside". -->
     <record id="view_account_move_line_filter_project" model="ir.ui.view">
         <field name="name">account.move.line.search.project</field>
         <field name="model">account.move.line</field>
         <field name="inherit_id" ref="account.view_account_move_line_filter"/>
         <field name="arch" type="xml">
-            <xpath expr="//search" position="inside">
+
+            <!-- with the other search fields, before any filter -->
+            <xpath expr="//field[@name='account_id']" position="after">
                 <field name="project_analytic_id"/>
+            </xpath>
+
+            <!-- after the P&L Accounts filter, in the filter block -->
+            <xpath expr="//filter[@name='pl_accounts']" position="after">
                 <separator/>
                 <filter name="no_project"
                         string="No Project"
-                        domain="[('project_analytic_id', '=', False)]"/>
-                <group string="Project">
-                    <filter name="group_project"
-                            string="Project"
-                            context="{'group_by': 'project_analytic_id'}"/>
-                </group>
+                        domain="[('project_analytic_id', '=', False)]"
+                        help="Journal items carrying no analytic distribution"/>
             </xpath>
+
+            <!-- inside the stock Group By group. <group> accepts no string
+                 attribute in a search view, so never add another one. -->
+            <xpath expr="//filter[@name='group_by_account']" position="after">
+                <filter name="group_project"
+                        string="Project"
+                        domain="[]"
+                        context="{'group_by': 'project_analytic_id'}"/>
+            </xpath>
+
         </field>
     </record>
 
-    <!-- Journal Items list: Project as an optional column, on by default. -->
+    <!-- Journal Items list: Project as a column, shown by default. -->
     <record id="view_move_line_tree_project" model="ir.ui.view">
         <field name="name">account.move.line.list.project</field>
         <field name="model">account.move.line</field>
