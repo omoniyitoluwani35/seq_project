@@ -20,6 +20,7 @@ PROJECTS = [
     ("JCB", "Jacobs Bay"),
     ("RAY", "Rayyan Garki"),
     ("IKY", "Ikoyi"),
+    ("SHD", "Shared / Head Office"),
 ]
 
 # Accounts naming two projects. Tag to whoever HOLDS the balance:
@@ -49,6 +50,16 @@ JOURNAL_RULES = {
     "SUMAB": "Ali Baba",
     "MPRAY": "Rayyan Garki",
 }
+
+# Costs that belong to no single project: head-office overhead, period
+# depreciation posted in one lump with no asset split, bank charges on the
+# company-level banks. Parked on their own analytic account rather than
+# apportioned, for two reasons. A later asset-register split can then
+# reallocate the depreciation precisely instead of unpicking an estimate,
+# and head-office cost never leaks into a project figure shown to a buyer.
+# Set False to leave them untagged and only report them.
+SHARED_NAME = "Shared / Head Office"
+ALLOCATE_SHARED = True
 
 # Balance-sheet accounts that belong to a project. Banks, equity, tax and
 # general control accounts are deliberately out of scope: the expense side of
@@ -167,7 +178,9 @@ for ln in lines:
         e = todo.setdefault(key, [0, 0.0])
         e[0] += 1
         e[1] += val
-        continue
+        if not ALLOCATE_SHARED:
+            continue
+        proj, how = SHARED_NAME, "shared fallback"
     e = tagged.setdefault(proj, [0, 0.0, {}])
     e[0] += 1
     e[1] += val
@@ -199,15 +212,23 @@ print(f"{'TAGGED':<16}{tot_l:>8,}{tot_v:>24,.2f}")
 if todo:
     n = sum(v[0] for v in todo.values())
     v = sum(v[1] for v in todo.values())
-    print(f"{'UNALLOCATED':<16}{n:>8,}{v:>24,.2f}")
-    print("\nThese need a decision — shared costs with no project in the name:")
+    if ALLOCATE_SHARED:
+        print(f"\n(of which '{SHARED_NAME}': {n:,} lines, {v:,.2f})")
+        print(f"\nRouted to '{SHARED_NAME}' — no project in the account name or journal:")
+    else:
+        print(f"{'UNALLOCATED':<16}{n:>8,}{v:>24,.2f}")
+        print("\nThese need a decision — shared costs with no project in the name:")
     print(f"  {'CODE':<7}{'ACCOUNT':<48}{'LINES':>7}{'VALUE':>18}")
     for (code, name), (n, v) in sorted(todo.items(), key=lambda kv: -kv[1][1]):
         if v == 0:
             continue
         print(f"  {code:<7}{(name or '')[:46]:<48}{n:>7,}{v:>18,.2f}")
-    print("\n  Options: split by revenue share, split evenly, or leave on a")
-    print("  'Shared / Head Office' analytic account and allocate at year end.")
+    if ALLOCATE_SHARED:
+        print("\n  To reallocate later, edit the analytic distribution on these")
+        print("  lines — e.g. once the asset register splits plant by property.")
+    else:
+        print("\n  Options: split by revenue share, split evenly, or leave on a")
+        print("  'Shared / Head Office' analytic account and allocate at year end.")
 
 if failed:
     print(f"\nFAILED TO WRITE ({len(failed)}):")
