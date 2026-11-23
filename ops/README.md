@@ -34,7 +34,21 @@ Applied in order:
 5. **Note 6 fallback** — 4475 Bank Charges raised on the four
    company-level banks, which have no property. Note 6 puts them in Arusha.
 
-Scope is P&L accounts plus the twelve project balance-sheet accounts.
+Four analytic accounts: Arusha, Ali Baba, Jacobs Bay, Rayyan Garki.
+
+Ikoyi is deliberately absent. 7376 "Ikoyi Project" is 8,600,009.00 of
+advances toward a land-acquisition partnership, reported as "Staff Loans
+and Advances / Other Current assets" in Note 15-23 and nowhere in the
+P&L. It has no bank account, no journal and no inflows, so 7376 is out of
+scope alongside 7400 Staff Loan and 7410 Account Receivables. Add it as a
+project once it has funding of its own.
+
+Rayyan Garki stays despite also being balance-sheet only: it has its own
+bank account (8440), its own journal (MPRAY), 100,000,000 of subscriber
+money in and 99,909,420 spent. Its costs capitalise rather than hitting
+the P&L, the same as Jacobs Bay.
+
+Scope is P&L accounts plus the eleven project balance-sheet accounts.
 Banks, equity, tax and general control accounts are deliberately excluded:
 the expense side of a payment carries the analytic, the bank side does not.
 

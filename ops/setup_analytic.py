@@ -19,8 +19,13 @@ PROJECTS = [
     ("ALB", "Ali Baba"),
     ("JCB", "Jacobs Bay"),
     ("RAY", "Rayyan Garki"),
-    ("IKY", "Ikoyi"),
 ]
+
+# Not a project. 7376 "Ikoyi Project" is 8,600,009.00 of advances toward a
+# land-acquisition partnership, which the accountant reports as "Staff Loans
+# and Advances / Other Current assets" in Note 15-23 and never in the P&L.
+# No bank account, no journal, no inflows. Out of scope, like 7400 and 7410.
+# Add it back as a project when it has its own bank account and funding.
 
 # Accounts the accountant reports BELOW the three project blocks, in Note 13
 # "Depreciation of property, plant and equipment" (4370 + 4390 =
@@ -49,7 +54,6 @@ NAME_RULES = [
     ("ali baba",   "Ali Baba"),
     ("jacobs bay", "Jacobs Bay"),
     ("rayyan",     "Rayyan Garki"),
-    ("ikoyi",      "Ikoyi"),
     ("arusha",     "Arusha"),
 ]
 
@@ -73,7 +77,7 @@ ACCOUNT_FALLBACK = {
 # general control accounts are deliberately out of scope: the expense side of
 # a payment carries the analytic, the bank side does not.
 PROJECT_BS = {
-    "7200", "7375", "7376", "7377", "7378",
+    "7200", "7375", "7377", "7378",
     "9300", "9450", "9451", "9452", "9454", "9550", "9551",
 }
 
