@@ -7,8 +7,14 @@ Run each from the VPS:
 
     cd /opt/odoo19E/custom_modules/AirBNB
     git pull
-    sudo -u odoo /opt/odoo19E/venv/bin/python3 /opt/odoo19E/odoo/odoo-bin shell \
-        -c /etc/odoo19E.conf -d seq_main --no-http < ops/<script>.py
+    sudo -u odoo /opt/odoo19E/.venv/bin/python3 /opt/odoo19E/odoo-bin shell \
+        -c /etc/odoo/odoo.conf -d seq_main --no-http < ops/<script>.py
+
+Those three paths are the ones systemd uses — confirm with
+`systemctl cat odoo | grep ExecStart` if anything moves. Passing the wrong
+`-c` is worse than it looks: Odoo silently falls back to its default addons
+path, drops `/opt/odoo19E/custom_modules`, and reports any module there as
+`manifest not found` rather than telling you the config was missing.
 
 | Script | What it does | Safe to re-run |
 |---|---|---|
@@ -101,8 +107,8 @@ will not find it. Symlink it in once:
 Then install it, and it stays current with every `git pull`:
 
     sudo systemctl stop odoo
-    sudo -u odoo /opt/odoo19E/.venv/bin/python3 /opt/odoo19E/odoo/odoo-bin \
-        -c /etc/odoo19E.conf -d seq_main -i seq_project_analytic \
+    sudo -u odoo /opt/odoo19E/.venv/bin/python3 /opt/odoo19E/odoo-bin \
+        -c /etc/odoo/odoo.conf -d seq_main -i seq_project_analytic \
         --stop-after-init --no-http --logfile=
     sudo systemctl start odoo
 
