@@ -13,28 +13,18 @@ TARGET_ACTIONS = (
 
 CTX_KEY = "search_default_group_project"
 
-# The P&L ships with filter_analytic = False, so _init_options_analytic
-# returns early and the report cannot be restricted to one project. Turn it
-# on, remembering what it was so uninstall can put it back.
+# filter_analytic on the P&L is turned ON by data/account_report_data.xml,
+# not here, so that it applies on every -u and not only on a fresh install.
+# This only puts it back to the value Odoo ships on uninstall.
 PL_REPORT = "account_reports.profit_and_loss"
-PARAM_PREV = "seq_project_analytic.pl_filter_analytic_was"
 
 
-def _set_pl_analytic_filter(env, enable):
+def _restore_pl_analytic_filter(env):
     report = env.ref(PL_REPORT, raise_if_not_found=False)
     if not report or "filter_analytic" not in report._fields:
-        _logger.info("seq_project_analytic: no P&L report to configure")
         return
-    params = env["ir.config_parameter"].sudo()
-    if enable:
-        params.set_param(PARAM_PREV, "1" if report.filter_analytic else "0")
-        report.filter_analytic = True
-        _logger.info("seq_project_analytic: enabled filter_analytic on the P&L")
-    else:
-        if params.get_param(PARAM_PREV) == "0":
-            report.filter_analytic = False
-            _logger.info("seq_project_analytic: restored filter_analytic = False")
-        params.set_param(PARAM_PREV, "")
+    report.filter_analytic = False
+    _logger.info("seq_project_analytic: restored filter_analytic = False on the P&L")
 
 
 def _edit_action_contexts(env, add):
@@ -68,9 +58,8 @@ def _edit_action_contexts(env, add):
 
 def post_init_default_groupby(env):
     _edit_action_contexts(env, add=True)
-    _set_pl_analytic_filter(env, enable=True)
 
 
 def uninstall_clear_default_groupby(env):
     _edit_action_contexts(env, add=False)
-    _set_pl_analytic_filter(env, enable=False)
+    _restore_pl_analytic_filter(env)

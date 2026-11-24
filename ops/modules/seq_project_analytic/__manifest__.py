@@ -1,6 +1,6 @@
 {
     "name": "Sequoia Project Analytic Filter",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.0.1",
     "summary": "Search, group and sort journal items by project analytic account",
     "description": """
 Sequoia Project Analytic Filter
@@ -31,6 +31,7 @@ entry often spans several projects, so the project belongs to the line.
     "category": "Accounting",
     "depends": ["account", "analytic", "account_reports"],
     "data": [
+        "data/account_report_data.xml",
         "views/account_move_line_views.xml",
         "views/account_move_views.xml",
         "views/account_analytic_account_views.xml",

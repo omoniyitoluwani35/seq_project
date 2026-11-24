@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- The Profit and Loss report ships with filter_analytic = False, so
+         _init_options_analytic returns on its first line and the report
+         cannot be restricted to a project at all.
+
+         Declared as data rather than set in post_init_hook, because that
+         hook runs only on install. An existing install updated with -u
+         would never have had it applied. A data record without
+         noupdate="1" is rewritten on every upgrade, so this holds. -->
+    <record id="account_reports.profit_and_loss" model="account.report">
+        <field name="filter_analytic" eval="True"/>
+    </record>
+
+</odoo>

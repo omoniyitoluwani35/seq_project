@@ -103,8 +103,13 @@ What you get:
 
 `account_reports.profit_and_loss` ships with **`filter_analytic = False`**,
 so `_init_options_analytic` returns early and the report cannot be
-restricted to a project at all. The install hook turns it on and records
-the previous value in `ir.config_parameter`, so uninstall restores it.
+restricted to a project at all.
+
+`data/account_report_data.xml` turns it on. It lives in a data file rather
+than in `post_init_hook` because **that hook runs only on install** — an
+existing install updated with `-u` would never have had it applied. A data
+record without `noupdate="1"` is rewritten on every upgrade, so it holds.
+The uninstall hook puts it back to `False`, the value Odoo ships.
 
 `_init_options_analytic` reads `previous_options['analytic_accounts']`, so
 the Open button returns the `account_reports.action_account_report_pl`
