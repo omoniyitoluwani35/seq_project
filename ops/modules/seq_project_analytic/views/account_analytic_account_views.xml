@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form: open or download the P&L for this project.
+         Anchored on //sheet, which every form view has. -->
+    <record id="view_account_analytic_account_form_pnl" model="ir.ui.view">
+        <field name="name">account.analytic.account.form.pnl</field>
+        <field name="model">account.analytic.account</field>
+        <field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <button name="action_open_pnl"
+                            type="object"
+                            string="Profit and Loss"
+                            class="oe_highlight"
+                            invisible="not id"/>
+                    <button name="action_download_pnl"
+                            type="object"
+                            string="Download P&amp;L"
+                            invisible="not id"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- List: the same two as row buttons.
+         Anchored on (//field)[last()] so it does not matter whether the
+         root is <list> or <tree>, or which fields the view carries. -->
+    <record id="view_account_analytic_account_list_pnl" model="ir.ui.view">
+        <field name="name">account.analytic.account.list.pnl</field>
+        <field name="model">account.analytic.account</field>
+        <field name="inherit_id" ref="analytic.view_account_analytic_account_list"/>
+        <field name="arch" type="xml">
+            <xpath expr="(//field)[last()]" position="after">
+                <button name="action_open_pnl"
+                        type="object"
+                        icon="fa-bar-chart"
+                        title="Open the Profit and Loss for this project"/>
+                <button name="action_download_pnl"
+                        type="object"
+                        icon="fa-download"
+                        title="Download the Profit and Loss for this project"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

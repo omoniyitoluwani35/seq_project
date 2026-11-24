@@ -1,6 +1,6 @@
 {
     "name": "Sequoia Project Analytic Filter",
-    "version": "19.0.1.0.2",
+    "version": "19.0.2.0.0",
     "summary": "Search, group and sort journal items by project analytic account",
     "description": """
 Sequoia Project Analytic Filter
@@ -20,6 +20,8 @@ Adds:
 - A default Group By Project on the Journal Items action, applied on install
   and removed again on uninstall
 - A Project search on Journal Entries, matched through the entry's lines
+- Profit and Loss and Download P&L buttons on the analytic account form
+  and list, opening or exporting the P&L restricted to that one project
 
 Journal Entries get a search field only, no column and no Group By. One
 entry often spans several projects, so the project belongs to the line.
@@ -27,10 +29,11 @@ entry often spans several projects, so the project belongs to the line.
     "author": "NIVIC Tech",
     "license": "LGPL-3",
     "category": "Accounting",
-    "depends": ["account", "analytic"],
+    "depends": ["account", "analytic", "account_reports"],
     "data": [
         "views/account_move_line_views.xml",
         "views/account_move_views.xml",
+        "views/account_analytic_account_views.xml",
     ],
     "post_init_hook": "post_init_default_groupby",
     "uninstall_hook": "uninstall_clear_default_groupby",

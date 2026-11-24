@@ -95,6 +95,37 @@ What you get:
 - Group By Project applied as the default on the Journal Items action
 
 - **Journal Entries** — a Project search, matched through the entry's lines
+- **Analytic Accounts** — *Profit and Loss* and *Download P&L* buttons on
+  both the form and the list, opening or exporting the P&L restricted to
+  that one project
+
+## The P&L buttons
+
+`account_reports.profit_and_loss` ships with **`filter_analytic = False`**,
+so `_init_options_analytic` returns early and the report cannot be
+restricted to a project at all. The install hook turns it on and records
+the previous value in `ir.config_parameter`, so uninstall restores it.
+
+`_init_options_analytic` reads `previous_options['analytic_accounts']`, so
+the Open button returns the `account_reports.action_account_report_pl`
+client action with:
+
+    action["params"] = {"options": {"analytic_accounts": self.ids},
+                        "ignore_session": True}
+
+`ignore_session` stops a filter the user left set earlier from overriding
+it. Download goes through `report.export_file(options, "export_to_xlsx")`.
+
+That same method also early-returns unless the user holds
+`analytic.group_analytic_accounting`. Without it the report would silently
+ignore the filter and show every project at once, so both buttons raise a
+UserError instead of producing a wrong report.
+
+The export is Odoo's **standard** P&L layout — Operating Income, Cost of
+Revenue, Expenses — not the accountant's note structure of Revenue, Cost
+of Sales, Personnel, Operating expenses, Finance cost. If a project P&L
+ever goes to a buyer or an investor, build it to match the September
+accounts rather than sending this.
 
 Journal Entries get a search field only. One entry often spans several
 projects — a bank charge accrual hits four at once — so there is no correct
